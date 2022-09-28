@@ -22,19 +22,28 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(expenses.items) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.name)
-                                .font(.headline)
-                            Text(item.type)
+                Section(header: Text("Personal")) {
+                    ForEach(expenses.items) { item in
+                        Group {
+                            if item.type == "Personal" {
+                                itemView(item: item)
+                            }
                         }
-
-                        Spacer()
-                        Text(item.amount, format: .currency(code: "USD"))
-                    }.foregroundColor((item.amount < 10) ? .purple : (item.amount < 100) ? .green : .blue)
+                        
+                    }
+                    .onDelete(perform: removeItems)
                 }
-                .onDelete(perform: removeItems)
+                Section(header: Text("Business")) {
+                    ForEach(expenses.items) { item in
+                        Group {
+                            if item.type == "Business" {
+                                itemView(item: item)
+                            }
+                        }
+                        
+                    }
+                    .onDelete(perform: removeItems)
+                }
             }
             .navigationTitle("iExpense")
             .toolbar{
@@ -48,6 +57,20 @@ struct ContentView: View {
         .sheet(isPresented: $showingAddExpense) {
             AddView(expenses: expenses)
         }
+    }
+    
+    
+    fileprivate func itemView(item: ExpenseItem) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(item.name)
+                    .font(.headline)
+                Text(item.type)
+            }
+
+            Spacer()
+            Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+        }.foregroundColor((item.amount < 10) ? .purple : (item.amount < 100) ? .green : .blue)
     }
     
     
